@@ -6,19 +6,19 @@ This project is aimed at students preparing for coding interviews, data structur
 
 ---
 
-## 🚀 Features
+##  Features
 
-- 💬 Chat-based AI interface for coding questions
-- 🧠 AI-generated explanations for problem solving
-- ⚙️ Backend built with FastAPI
-- 🎨 Frontend built with React (Vite)
-- 🧪 Swagger API documentation
-- 🛢 MongoDB integration (extensible for chat history)
-- 🗂 Clean and modular project structure
+-  Chat-based AI interface for coding questions
+-  AI-generated explanations for problem solving
+-  Backend built with FastAPI
+-  Frontend built with React (Vite)
+-  Swagger API documentation
+-  MongoDB integration (extensible for chat history)
+-  Clean and modular project structure
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 ### Frontend
 - React
@@ -35,7 +35,7 @@ This project is aimed at students preparing for coding interviews, data structur
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```text
 ai-study-suite/
@@ -56,9 +56,9 @@ ai-study-suite/
 ├── .gitignore
 └── README.md
 
-## ⚙️ Setup Instructions
+##  Setup Instructions
 
-### 🔧 Backend Setup
+### Backend Setup
 
 1. Navigate to the backend directory:
 ```bash
@@ -83,7 +83,7 @@ python -m uvicorn app.main:app --reload
 
 http://127.0.0.1:8000/docs
 
-🎨 Frontend Setup
+ Frontend Setup
 
 1. Navigate to the frontend directory:
 
