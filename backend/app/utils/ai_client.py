@@ -1,29 +1,60 @@
 import httpx
 import json
 import re
+from typing import Dict, Any
 from ..core import config
 
 
-async def analyze_problem(problem: str) -> dict:
+def normalize_llm_response(parsed: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Sends a coding problem to OpenRouter API and returns safe JSON.
-    Handles errors, missing fields, and malformed model output.
+    Ensures the LLM response always contains expected fields.
+    Adds safe defaults for missing keys.
+    """
+    return {
+        "summary": parsed.get("summary", ""),
+        "brute_force": parsed.get("brute_force", ""),
+        "optimized": parsed.get("optimized", ""),
+        "complexity": parsed.get("complexity", ""),
+        "hints": parsed.get("hints", ""),
+        "quiz": parsed.get("quiz", [])
+    }
+
+
+async def analyze_problem(prompt: str) -> Dict[str, Any]:
+    """
+    Sends a prompt to OpenRouter LLM and returns a safe, structured response.
+
+    Behavior:
+    - Attempts strict JSON parsing
+    - Normalizes missing fields
+    - Falls back to raw text if parsing fails
+    - Never crashes the API
     """
 
-    prompt = f"""
-    You are an expert coding tutor. Analyze the following problem:
+    system_prompt = """
+You are an expert coding tutor.
+You MUST return strictly valid JSON.
+Do not include markdown, explanations, or extra text.
+"""
 
-    {problem}
+    user_prompt = f"""
+{prompt}
 
-    Return your answer strictly in JSON with these fields:
-    - summary
-    - brute_force
-    - optimized
-    - complexity
-    - hints
+Return your answer strictly in JSON with the following fields:
+- summary
+- brute_force
+- optimized
+- complexity
+- hints
+- quiz (array of objects with question and answer)
 
-    ❗ ONLY return valid JSON. No markdown or extra text.
-    """
+Example quiz format:
+"quiz": [
+  {{"question": "...", "answer": "..."}}
+]
+
+❗ ONLY return valid JSON.
+"""
 
     try:
         async with httpx.AsyncClient(timeout=60.0) as client:
@@ -36,24 +67,30 @@ async def analyze_problem(problem: str) -> dict:
                 json={
                     "model": "gpt-4o-mini",
                     "messages": [
-                        {"role": "system", "content": "You output strictly JSON."},
-                        {"role": "user", "content": prompt}
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
                     ],
                     "temperature": 0.4,
-                    "max_tokens": 800
+                    "max_tokens": 900
                 }
             )
 
         data = response.json()
 
         # -----------------------
-        # (1) HANDLE OPENROUTER ERRORS
+        # (1) HANDLE API ERRORS
         # -----------------------
         if "error" in data:
-            return {"error": "OpenRouter API error", "details": data["error"]}
+            return {
+                "error": "OpenRouter API error",
+                "details": data["error"]
+            }
 
-        if "choices" not in data:
-            return {"error": "No 'choices' returned", "raw": data}
+        if "choices" not in data or not data["choices"]:
+            return {
+                "error": "No choices returned by LLM",
+                "raw": data
+            }
 
         content = data["choices"][0]["message"]["content"]
 
@@ -62,17 +99,26 @@ async def analyze_problem(problem: str) -> dict:
         # -----------------------
         match = re.search(r"\{.*\}", content, re.DOTALL)
         if not match:
-            return {"error": "Model output missing JSON", "raw": content}
+            # Fallback: raw text response
+            return {
+                "raw_text": content
+            }
 
         json_text = match.group(0)
 
         # -----------------------
-        # (3) PARSE JSON SAFELY
+        # (3) PARSE + NORMALIZE JSON
         # -----------------------
         try:
-            return json.loads(json_text)
+            parsed = json.loads(json_text)
+            return normalize_llm_response(parsed)
         except json.JSONDecodeError:
-            return {"error": "JSON parse failed", "raw": json_text}
+            return {
+                "raw_text": json_text
+            }
 
     except Exception as e:
-        return {"error": "Exception occurred", "details": str(e)}
+        return {
+            "error": "Exception occurred while calling LLM",
+            "details": str(e)
+        }
