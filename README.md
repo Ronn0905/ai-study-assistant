@@ -6,19 +6,19 @@ This project is aimed at students preparing for coding interviews, data structur
 
 ---
 
-##  Features
+## Features
 
--  Chat-based AI interface for coding questions
--  AI-generated explanations for problem solving
--  Backend built with FastAPI
--  Frontend built with React (Vite)
--  Swagger API documentation
--  MongoDB integration (extensible for chat history)
--  Clean and modular project structure
+- Chat-based AI interface for coding questions
+- AI-generated explanations for problem solving
+- Backend built with FastAPI
+- Frontend built with React (Vite)
+- Swagger API documentation
+- MongoDB integration (extensible for chat history)
+- Clean and modular project structure
 
 ---
 
-##  Tech Stack
+## Tech Stack
 
 ### Frontend
 - React
@@ -27,80 +27,117 @@ This project is aimed at students preparing for coding interviews, data structur
 - CSS
 
 ### Backend
-- FastAPI
 - Python
-- MongoDB (Motor + PyMongo)
-- Uvicorn
-- HTTPX
+- FastAPI
+- MongoDB
+- OpenAI API / LLM Integration
 
 ---
 
-##  Project Structure
+## Project Structure
 
-```text
-ai-study-suite/
+```
+ai-study-assistant/
 ├── backend/
 │   ├── app/
+│   │   ├── main.py
 │   │   ├── routes/
-│   │   ├── utils/
-│   │   ├── db/
-│   │   └── main.py
+│   │   ├── models/
+│   │   └── utils/
 │   ├── requirements.txt
-│   └── README.md
-│
+│   └── .env
 ├── frontend/
 │   ├── src/
-│   ├── index.html
-│   └── package.json
-│
-├── .gitignore
+│   │   ├── components/
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── package.json
+│   └── vite.config.js
 └── README.md
+```
 
-##  Setup Instructions
+---
+
+## Setup Instructions
 
 ### Backend Setup
 
 1. Navigate to the backend directory:
 ```bash
 cd backend
+```
 
-2. Create and activate a virtual environment:
-
+2. Create a virtual environment:
+```bash
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-3. Install backend dependencies:
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-python -m pip install -r requirements.txt
+4. Create a `.env` file with your configuration:
+```
+OPENAI_API_KEY=your_api_key_here
+MONGO_URI=your_mongodb_uri
+```
 
+5. Run the FastAPI server:
+```bash
+uvicorn app.main:app --reload
+```
 
-4. Start the backend server:
+The API will be available at `http://localhost:8000`
 
-python -m uvicorn app.main:app --reload
-
-
-5. Open Swagger API documentation:
-
-http://127.0.0.1:8000/docs
-
- Frontend Setup
+### Frontend Setup
 
 1. Navigate to the frontend directory:
-
+```bash
 cd frontend
+```
 
-
-2. Install frontend dependencies:
-
+2. Install dependencies:
+```bash
 npm install
+```
 
-
-3. Start the frontend development server:
-
+3. Start the development server:
+```bash
 npm run dev
+```
 
+The application will be available at `http://localhost:5173`
 
-4. Open the application in your browser:
+---
 
-http://localhost:5173
+## Usage
 
+1. Start both the backend and frontend servers
+2. Open the application in your browser
+3. Enter a coding question or problem
+4. Receive AI-generated explanations and solutions
+5. Chat history is stored for reference
+
+---
+
+## API Documentation
+
+Once the backend is running, visit `http://localhost:8000/docs` for interactive Swagger API documentation.
+
+---
+
+## Future Enhancements
+
+- User authentication
+- Persistent chat history with sessions
+- Code execution environment
+- Problem categorization and tagging
+- Export chat sessions
+
+---
+
+## License
+
+This project is open source and available under the MIT License.
